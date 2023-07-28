@@ -1,0 +1,48 @@
+pinda:
+  local-ip: ${LOCAL_IP:${spring.cloud.client.ip-address}}   # docker部署时，需要指定， 表示的运行该服务的宿主机IP
+  nacos:
+    ip: ${NACOS_IP:@pom.nacos.ip@}
+    port: ${NACOS_PORT:@pom.nacos.port@}
+    namespace: ${NACOS_ID:@pom.nacos.namespace@}
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: pd-file-server #pd-app
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: ${pinda.nacos.ip}:${pinda.nacos.port}
+        file-extension: yaml
+        namespace: ${pinda.nacos.namespace}
+#        shared-dataids: redis.yaml #,mysql.yaml
+        refreshable-dataids: common.yaml
+        enabled: true
+        shared-dataids: mysql.yaml
+
+      discovery:
+        server-addr: ${pinda.nacos.ip}:${pinda.nacos.port}
+        namespace: ${pinda.nacos.namespace}
+        metadata:
+          management.context-path: ${server.servlet.context-path:}${spring.mvc.servlet.path:}${management.endpoints.web.base-path:}
+
+  servlet:
+    multipart:
+      enabled: true
+      max-request-size: 300MB #文件最大大小
+      max-file-size: 11MB #单个文件最大大小
+
+logging:
+  file:
+    path: /data/projects/logs
+    name: ${logging.file.path}/${spring.application.name}/root.log
+
+info:
+  name: "@project.name@"
+  description: "@project.description@"
+  version: "@project.version@"
+  spring-boot-version: "@spring.boot.version@"
+  spring-cloud-version: "@spring.cloud.version@"
